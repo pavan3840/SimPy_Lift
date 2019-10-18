@@ -18,6 +18,7 @@ floors = 10
 class Lift_Simulation(object):
     
     def liftFloorTrigger(env,Ftrigger):
+        print('Floor Call')
         global curr,curr2,stat1,tran1,floors,move_time
         
         '''
@@ -79,28 +80,34 @@ class Lift_Simulation(object):
             print('Only 10 floors are present')
                 
     def liftInsideTrigger(env,Ltrigger):
+        print('Lift Call')
         global curr,stat1,tran1,floors,move_time
         if Ltrigger>=0 and Ltrigger<=floors:
             if curr!=Ltrigger:
-                print ('Moving from' + str(curr))
+                print ('Moving from ' + str(curr) + ' to ' + str(Ltrigger))
                 tran1 = True
                 stat1 = False
+                diff = abs(curr-Ltrigger)
                 curr = Ltrigger
-                move_time = abs(Ltrigger-curr)*3
+                move_time = abs(diff)*3
                 yield env.timeout(move_time)
-                print('Reached ' + str(curr) + ' at ' + str(env.now) + ' second.')
+                print('Reached ' + str(curr) + ' at ' + str(env.now) + ' second. ' + str(diff) + ' floors')
                 stat1 = True
                 tran1 = False
+                print()
             else:
                 #Opening Door
                 door_open_time = 2;
                 yield env.timeout(door_open_time)
                 print('Doors opened at ' + str(env.now) + ' second. 2 units')
                 print('You are on the requested floor')
+                print()
         else:
             print('Only 10 floors are present')
 
-for i in range(20):
+for i in range(2):
     env = simpy.Environment()    
     env.process(Lift_Simulation.liftFloorTrigger(env,random.randint(0,10)))
+    env.run()
+    env.process(Lift_Simulation.liftInsideTrigger(env,random.randint(0,10)))
     env.run()
